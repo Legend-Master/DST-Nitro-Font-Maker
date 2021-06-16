@@ -122,6 +122,6 @@ with open(OUTPUT_FOLDER + "nitro_emojis.lua", "w", encoding = "utf-8") as out:
 
 if "tex_convert_cmd" in settings:
     os.system(settings["tex_convert_cmd"].format(OUTPUT_FOLDER + "font.png"))
-    with zipfile.ZipFile(OUTPUT_FOLDER + settings["zip_fname"], mode='w') as outzip:
+    with zipfile.ZipFile(OUTPUT_FOLDER + settings["zip_fname"], "w", zipfile.ZIP_DEFLATED) as outzip:
         outzip.write(OUTPUT_FOLDER + "font.tex", "font.tex")
         outzip.write(OUTPUT_FOLDER + "font.fnt", "font.fnt")
