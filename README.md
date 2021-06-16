@@ -1,9 +1,9 @@
-# DST-Nitro-Font-Maker
+# DST Nitro Font Maker
 
-Using to generate font file for Don't Starve Together
+A tool used to generate font file for Don't Starve Together mod [DST Nitro](https://steamcommunity.com/sharedfiles/filedetails/?id=2248952715)
 
-# Requirement
+## Requirement
   Python3, yaml, PIL
 
-# Usage
+## Usage
   Put all your images in to a folder then use `python main.py <folder>` to generate font.png, font.fnt, nitro_emojis.lua
