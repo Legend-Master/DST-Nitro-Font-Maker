@@ -1,3 +1,5 @@
 code_point_start: 983201
 code_point_step: 1
 resize_to: 52
+tex_convert_cmd: 'D:\SteamLibrary\steamapps\common\"Don''t Starve Mod Tools"\mod_tools\buildtools\windows\Python27\python.exe "D:\SteamLibrary\steamapps\common\Don''t Starve Mod Tools\mod_tools\compiler_scripts\image_build.py" "{}"'
+zip_fname: custom_emoji.zip

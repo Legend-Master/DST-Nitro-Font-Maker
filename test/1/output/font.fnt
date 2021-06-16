@@ -6,10 +6,10 @@
     <page id="0" file="emoji_0.png" />
   </pages>
   <chars count="5">
-    <char id="983200" x="0" y="0" width="52" height="52" xoffset="-1" yoffset="-1" xadvance="50" page="0" chnl="15" />
-    <char id="983201" x="54" y="0" width="52" height="52" xoffset="-1" yoffset="-1" xadvance="50" page="0" chnl="15" />
-    <char id="983202" x="108" y="0" width="52" height="52" xoffset="-1" yoffset="-1" xadvance="50" page="0" chnl="15" />
-    <char id="983203" x="162" y="0" width="52" height="52" xoffset="-1" yoffset="-1" xadvance="50" page="0" chnl="15" />
-    <char id="983204" x="0" y="54" width="52" height="52" xoffset="-1" yoffset="-1" xadvance="50" page="0" chnl="15" />
+    <char id="983201" x="0" y="0" width="52" height="52" xoffset="-1" yoffset="-1" xadvance="50" page="0" chnl="15" />
+    <char id="983202" x="54" y="0" width="52" height="52" xoffset="-1" yoffset="-1" xadvance="50" page="0" chnl="15" />
+    <char id="983203" x="108" y="0" width="52" height="52" xoffset="-1" yoffset="-1" xadvance="50" page="0" chnl="15" />
+    <char id="983204" x="162" y="0" width="52" height="52" xoffset="-1" yoffset="-1" xadvance="50" page="0" chnl="15" />
+    <char id="983205" x="0" y="54" width="52" height="52" xoffset="-1" yoffset="-1" xadvance="50" page="0" chnl="15" />
   </chars>
 </font>

@@ -3,6 +3,7 @@ import os
 import copy
 import math
 import yaml
+import zipfile
 from PIL import Image
 
 
@@ -14,7 +15,8 @@ settings = {
     "code_point_start": 983200,
     "code_point_step": 1,
     "resize_to": 52,
-    "padding": 2
+    "padding": 2,
+    "zip_fname": "font.zip"
 }
 
 try:
@@ -117,3 +119,9 @@ with open(OUTPUT_FOLDER + "font.fnt", "w", encoding = "utf-8") as out:
 with open(OUTPUT_FOLDER + "nitro_emojis.lua", "w", encoding = "utf-8") as out:
     lua_final = 'return {\n' + lua_final + '}\n'
     out.write(lua_final)
+
+if "tex_convert_cmd" in settings:
+    os.system(settings["tex_convert_cmd"].format(OUTPUT_FOLDER + "font.png"))
+    with zipfile.ZipFile(OUTPUT_FOLDER + settings["zip_fname"], mode='w') as outzip:
+        outzip.write(OUTPUT_FOLDER + "font.tex", "font.tex")
+        outzip.write(OUTPUT_FOLDER + "font.fnt", "font.fnt")
