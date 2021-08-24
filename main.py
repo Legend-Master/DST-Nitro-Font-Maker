@@ -9,9 +9,16 @@ from PIL import Image
 
 FOLDER_NAME = len(sys.argv) >= 2 and sys.argv[1]
 assert type(FOLDER_NAME) == str, "No folder name provided"
-FOLDER_NAME += "/"
 
-settings = {
+FOLDER_NAME += "/"
+EXISTING_FONTS_PATH = FOLDER_NAME + "existing_fonts.yaml"
+OUTPUT_FOLDER = FOLDER_NAME + "output/"
+
+MAX_CODE_POINT = 1114111
+EXIST_CODE_POINTS = {}
+RESERVED_CODE_POINTS = []
+
+SETTINGS = {
     "code_point_start": 983200,
     "code_point_step": 1,
     "resize_to": 52,
@@ -21,13 +28,29 @@ settings = {
 
 try:
     with open(FOLDER_NAME + "settings.yaml", "r") as stream:
-        settings_file = yaml.safe_load(stream)
-        if settings_file is not None:
-            for key in settings_file:
-                settings[key] = settings_file[key]
+        existing_fonts = yaml.safe_load(stream)
+        if existing_fonts is not None:
+            for key in existing_fonts:
+                SETTINGS[key] = existing_fonts[key]
 except:
     print("Can't load settings file, use default settings instead")
 
+try:
+    with open(EXISTING_FONTS_PATH, "r") as stream:
+        existing_fonts = yaml.safe_load(stream)
+        if existing_fonts is not None:
+            for name in existing_fonts:
+                EXIST_CODE_POINTS[name] = existing_fonts[name]
+            RESERVED_CODE_POINTS = EXIST_CODE_POINTS.values()
+except:
+    pass
+
+PADDING = SETTINGS["padding"]
+HALF_PADDING = PADDING // 2
+SPACING = SETTINGS["resize_to"] + PADDING
+RESIZE_SIZE = [SETTINGS["resize_to"], SETTINGS["resize_to"]]
+
+# sys.exit()
 
 def expand2square(pil_img, background_color=(255, 255, 255, 0)):
     width, height = pil_img.size
@@ -53,9 +76,6 @@ def get_final_image(image_list, spacing):
     return size and Image.new("RGBA", size)
 
 
-padding = settings["padding"]
-spacing = settings["resize_to"] + padding
-
 valid_image_formats = [ "png", "jpg", "jpeg" ]
 image_list = []
 for fname in os.listdir(FOLDER_NAME):
@@ -64,9 +84,9 @@ for fname in os.listdir(FOLDER_NAME):
             image_list.append(fname)
             break
 
-assert len(image_list) <= (2 ** 13 / spacing) ** 2, "Too Many Images !"
+assert len(image_list) <= (2 ** 13 / SPACING) ** 2, "Too Many Images !"
 
-final_img = get_final_image(image_list, spacing)
+final_img = get_final_image(image_list, SPACING)
 assert final_img, "Can't get final image"
 
 fnt_final = ""
@@ -86,42 +106,64 @@ fnt_tail = '''  </chars>
 lua_final = ""
 lua_temp = '    ["{}"] = "{}",\n'
 
-resize_size = [settings["resize_to"], settings["resize_to"]]
-half_padding = padding // 2
-pos = [half_padding, half_padding]
+code_point = SETTINGS["code_point_start"] - SETTINGS["code_point_step"]
 
-code_point = settings["code_point_start"]
+def get_code_point_for_name(name):
+    global code_point
+    exist_code_point = EXIST_CODE_POINTS.get(name)
+    if exist_code_point is not None:
+        return exist_code_point
+    else:
+        code_point += SETTINGS["code_point_step"]
+        if code_point not in RESERVED_CODE_POINTS:
+            return code_point
+        else:
+            while code_point in RESERVED_CODE_POINTS:
+                code_point += SETTINGS["code_point_step"]
+                assert code_point <= MAX_CODE_POINT, "Can't get any valid code point to use"
+            return code_point
+
+
+pos = [HALF_PADDING, HALF_PADDING]
 
 for fname in image_list:
 
-    im = expand2square(Image.open(FOLDER_NAME + fname)).resize(resize_size)
+    im = expand2square(Image.open(FOLDER_NAME + fname)).resize(RESIZE_SIZE)
 
-    if pos[0] + im.size[0] + half_padding > final_img.size[0]:
-        pos[0] = half_padding
-        pos[1] += resize_size[1] + padding
+    if pos[0] + im.size[0] + HALF_PADDING > final_img.size[0]:
+        pos[0] = HALF_PADDING
+        pos[1] += RESIZE_SIZE[1] + PADDING
 
     final_img.paste(im, copy.copy(pos))
-    fnt_final = fnt_final + fnt_temp.format(code_point, pos[0] - half_padding, pos[1] - half_padding, resize_size[0], resize_size[1], resize_size[0] - padding)
-    lua_final = lua_final + lua_temp.format(os.path.splitext(fname)[0], chr(code_point))
 
-    pos[0] += resize_size[0] + padding
-    code_point += settings["code_point_step"]
+    name = os.path.splitext(fname)[0]
+    code = get_code_point_for_name(name)
+    fnt_final = fnt_final + fnt_temp.format(code, pos[0] - HALF_PADDING, pos[1] - HALF_PADDING, RESIZE_SIZE[0], RESIZE_SIZE[1], RESIZE_SIZE[0] - PADDING)
+    lua_final = lua_final + lua_temp.format(name, chr(code))
 
-OUTPUT_FOLDER = FOLDER_NAME + "output/"
+    pos[0] += RESIZE_SIZE[0] + PADDING
+    EXIST_CODE_POINTS[name] = code
+
+
 if not os.path.exists(OUTPUT_FOLDER):
     os.makedirs(OUTPUT_FOLDER)
 
 final_img.save(OUTPUT_FOLDER + "font.png")
 with open(OUTPUT_FOLDER + "font.fnt", "w", encoding = "utf-8") as out:
     fnt_final = '  <chars count="{}">\n'.format(len(image_list)) + fnt_final + fnt_tail
-    fnt_final = fnt_head.format(resize_size[0] - padding, resize_size[0] - padding, final_img.size[0], final_img.size[1]) + fnt_final
+    fnt_final = fnt_head.format(RESIZE_SIZE[0] - PADDING, RESIZE_SIZE[0] - PADDING, final_img.size[0], final_img.size[1]) + fnt_final
     out.write(fnt_final)
+
 with open(OUTPUT_FOLDER + "nitro_emojis.lua", "w", encoding = "utf-8") as out:
     lua_final = 'return {\n' + lua_final + '}\n'
     out.write(lua_final)
 
-if "tex_convert_cmd" in settings:
-    os.system(settings["tex_convert_cmd"].format(OUTPUT_FOLDER + "font.png"))
-    with zipfile.ZipFile(OUTPUT_FOLDER + settings["zip_fname"], "w", zipfile.ZIP_DEFLATED) as outzip:
+
+if "tex_convert_cmd" in SETTINGS:
+    os.system(SETTINGS["tex_convert_cmd"].format(OUTPUT_FOLDER + "font.png"))
+    with zipfile.ZipFile(OUTPUT_FOLDER + SETTINGS["zip_fname"], "w", zipfile.ZIP_DEFLATED) as outzip:
         outzip.write(OUTPUT_FOLDER + "font.tex", "font.tex")
         outzip.write(OUTPUT_FOLDER + "font.fnt", "font.fnt")
+
+with open(EXISTING_FONTS_PATH, 'w') as outfile:
+    yaml.dump(EXIST_CODE_POINTS, outfile, default_flow_style=False)
