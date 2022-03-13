@@ -1,5 +1,7 @@
 # DST Nitro Font Maker
 
+[中文文档](README_zh.md)
+
 A tool for generating font files for Don't Starve Together mod [DST Nitro](https://steamcommunity.com/sharedfiles/filedetails/?id=2248952715)
 
 ## Requirement
