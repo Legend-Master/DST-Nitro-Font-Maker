@@ -16,5 +16,6 @@
   - `code_point_start`: int, 第一个图片对应的 unicode 值。( default: 983200 )
   - `code_point_step`: int, 每个图片相比前一个图片增加的 unicode 值。( default: 1 )
   - `resize_to`: int, 将图片缩放到置顶大小 ( default: 52 ) ( 强烈建议设置为 2 的指数级 )
-  - `tex_convert_cmd`: str, 执行转换 .png 为 .tex 的脚本位置 ( default: None )
+  - ~~`tex_convert_cmd`: str, 执行转换 .png 为 .tex 的脚本位置 ( default: None )~~ 已弃用，改为使用 `tex_convert_args`
+  - `tex_convert_args`: str[], 执行转换 .png 为 .tex 的脚本位置 ( default: None )
   - `zip_fname`: str, 生成的 zip 文件名称 ( default: font.zip ) ( 仅当设置了 `tex_convert_cmd` 时生效 )
