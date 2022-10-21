@@ -35,17 +35,17 @@ FNT_TAIL = '''  </chars>
 LUA_TEMPLATE = '    ["{}"] = "{}",\n'
 
 
-def expand_to_square(pil_img, background_color=(255, 255, 255, 0)):
-    width, height = pil_img.size
+def expand_to_square(img):
+    width, height = img.size
     if width == height:
-        return pil_img
+        return img
     elif width > height:
-        result = Image.new(pil_img.mode, (width, width), background_color)
-        result.paste(pil_img, (0, (width - height) // 2))
+        result = Image.new("RGBA", (width, width))
+        result.paste(img, (0, (width - height) // 2))
         return result
     else:
-        result = Image.new(pil_img.mode, (height, height), background_color)
-        result.paste(pil_img, ((height - width) // 2, 0))
+        result = Image.new("RGBA", (height, height))
+        result.paste(img, ((height - width) // 2, 0))
         return result
 
 
