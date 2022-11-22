@@ -1,2 +1,2 @@
-Pillow==9.1.1
-PyYAML==6.0
+Pillow
+PyYAML
